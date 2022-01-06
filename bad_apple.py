@@ -18,7 +18,7 @@ input('Press enter and watch...')
 starttime = datetime.now()
 for num in range(1, frames):
 	time = datetime.now()
-	file = f"/home/babushka/python_p/frames/image{num}.jpg"
+	file = f"your/path/to/unpacked/frames/folder/image{num}.jpg"
 	img = Image.open(file)
 	if x and y != None:
 		img = img.resize((x, y), Image.ANTIALIAS)
