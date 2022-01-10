@@ -5,8 +5,8 @@ from subprocess import getoutput as gout
 clear = gout("clear")
 
 frames = 6573
-x = 200
-y = 100
+x = 100
+y = 50
 if x and y != None:
 	xtoy = x*y
 else:
@@ -28,5 +28,4 @@ for num in range(1, frames):
 	center = '\n'.join([start[i:i+img.size[0]] for i in range(0, len(start), img.size[0])]) if ' ' not in start[:img.size[0]] and len(start) > img.size[0] else start
 	print(f'{sleep(sleeptime)}{clear}{str(center).replace("0"," ").replace("1","#")}\n\n"Screen": Resolution/Total/Sum: {x}x{y}/{xtoy}/{sum(data)} symbols\n\nFrames: Total/Remaining/Now frame(s): {frames}/{frames-num}/{num}\n\nTime: Total/Manual FT/Used FT: {str(datetime.now() - starttime)[3:]}/{sleeptime}/{str(datetime.now() - time)[6:][:5]}\n\a')
 
-##100x50 0.0199 ■
-##200x100 0.0125 #
+##100x50 0.0199 # 
