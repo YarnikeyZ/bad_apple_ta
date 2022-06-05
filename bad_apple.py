@@ -5,12 +5,9 @@ from subprocess import getoutput as gout
 clear = gout("clear")
 
 frames = 6573
-x = 100
 y = 50
-if x and y != None:
-	xtoy = x*y
-else:
-	xtoy = None
+x = y*2
+xy = x*y
 sleeptime = 0.0199
 
 input('Press enter and watch...')
@@ -18,7 +15,7 @@ input('Press enter and watch...')
 starttime = datetime.now()
 for num in range(1, frames):
 	time = datetime.now()
-	file = f"your/path/to/unpacked/frames/folder/image{num}.jpg"
+	file = f"frames/image{num}.jpg"
 	img = Image.open(file)
 	if x and y != None:
 		img = img.resize((x, y), Image.ANTIALIAS)
@@ -26,6 +23,4 @@ for num in range(1, frames):
 	data = list(zo.getdata())
 	start = str(data).replace('[', '').replace(']', '').replace(',', '').replace(' ', '')
 	center = '\n'.join([start[i:i+img.size[0]] for i in range(0, len(start), img.size[0])]) if ' ' not in start[:img.size[0]] and len(start) > img.size[0] else start
-	print(f'{sleep(sleeptime)}{clear}{str(center).replace("0"," ").replace("1","#")}\n\n"Screen": Resolution/Total/Sum: {x}x{y}/{xtoy}/{sum(data)} symbols\n\nFrames: Total/Remaining/Now frame(s): {frames}/{frames-num}/{num}\n\nTime: Total/Manual FT/Used FT: {str(datetime.now() - starttime)[3:]}/{sleeptime}/{str(datetime.now() - time)[6:][:5]}\n\a')
-
-##100x50 0.0199 # 
+	print(f'{sleep(sleeptime)}{clear}{str(center).replace("0"," ").replace("1","#")}\n\n"Screen": Resolution/Total/Sum: {x}x{y}/{xy}/{sum(data)} symbols\n\nFrames: Total/Remaining/Now frame(s): {frames}/{frames-num}/{num}\n\nTime: Total/Manual FT/Used FT: {str(datetime.now() - starttime)[3:]}/{sleeptime}/{str(datetime.now() - time)[6:][:5]}\n\a')
