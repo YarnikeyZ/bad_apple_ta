@@ -12,7 +12,7 @@ clear = gout("clear")
 def progress_update(all: int, part: int, inper: int, symbs: tuple):
 	per = round((part/all)*100)
 	if inper != per:
-		return (per, f"{''.ljust(per//10, symbs[0])}{''.ljust(10-per//10, symbs[1])} {per}%\n")
+		return (per, f"{''.ljust(per//10, symbs[0]).ljust(10-per//10, symbs[1])} {per}%\n")
 	else:
 		return (per, "")
 
