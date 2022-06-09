@@ -9,10 +9,10 @@ from os import listdir as ld
 clear = gout("clear")
 
 
-def progress_update(all: int, part: int, inper: int, symbs: tuple):
+def progress(all: int, part: int, inper: int, symbs: tuple):
 	per = round((part/all)*100)
 	if inper != per:
-		return (per, f"{''.ljust(per//10, symbs[0]).ljust(10-per//10, symbs[1])} {per}%\n")
+		return (per, f"({''.ljust(per, symbs[0])}{''.ljust(100-per, symbs[1])}) [{str(per).rjust(3, ' ')}]%\n")
 	else:
 		return (per, "")
 
@@ -33,7 +33,7 @@ def render(path: str, y: int):
 		for y_pix in range(0, img.size[1]):
 			line = ''
 			for x_pix in range(0, img.size[0]):
-				cbright = obj[x_pix, y_pix]//9-1
+				cbright = obj[x_pix, y_pix]//9
 				sbright = obj[x_pix, y_pix]//4
 				if sbright == 0:
 					sbright =+ 1
@@ -43,17 +43,19 @@ def render(path: str, y: int):
 					cbright = 0
 				line += f'\033[38;5;{cscale[cbright]}m{sscale[sbright-1]}\033[0;0m'
 			pic += f'{line}\n'
-		print(progress_update(count, num, inper, ("█", " "))[1], end="")
-		inper = progress_update(count, num, inper, ("█", " "))[0]
+		print(progress(count, num, inper, ("█", " "))[1], end="")
+		inper = progress(count, num, inper, ("█", " "))[0]
 		frames.append(f'{pic}\n\n"Screen": Resolution/Total: {x}x{y}/{xy} symbols\n\nFrames: Total/Remaining/Now frame(s): {count}/{count-num}/{num}')
 	return frames
 
 
 def display(frames: list, frame_time: float):
+	input("Display?...")
 	time_st = datetime.now()
 	for frame in frames:
 		time_frame = datetime.now()
-		print(f"{sleep(frame_time)}{clear}\n\n\n\n{frame}\n\nTime Total/Manual FT/Used FT: {datetime.now() - time_st}/{frame_time}/{datetime.now() - time_frame}")
+		print(f"{sleep(frame_time)}{clear}\n\n\n\n{frame}\n\nTime Total/Manual FT/Used FT: {datetime.now() - time_st}/{frame_time}/", end="")
+		print(datetime.now() - time_frame)
 
 
 def write_frames(frames: list):
@@ -62,8 +64,8 @@ def write_frames(frames: list):
 	for img_frame, num in zip(frames, range(1, count)):
 		with open(f"txt_frames/frame{num}.txt", 'w', encoding="utf-8") as txt_frame:
 			txt_frame.write(img_frame)
-		print(progress_update(count, num, inper, ("█", " "))[1], end="")
-		inper = progress_update(count, num, inper, ("█", " "))[0]
+		print(progress(count, num, inper, ("█", " "))[1], end="")
+		inper = progress(count, num, inper, ("█", " "))[0]
 	return
 
 
@@ -74,8 +76,8 @@ def read_frames():
 	for num in range(1, count):
 		with open(f"txt_frames/frame{num}.txt", "r", encoding="utf-8") as frame:
 			frames.append(frame.read())
-		print(progress_update(count, num, inper, ("█", " "))[1], end="")
-		inper = progress_update(count, num, inper, ("█", " "))[0]
+		print(progress(count, num, inper, ("█", " "))[1], end="")
+		inper = progress(count, num, inper, ("█", " "))[0]
 	return frames
 
 
