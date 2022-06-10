@@ -110,8 +110,8 @@ if __name__ == "__main__":
 			main(
 				argv[1],
 				int(argv[2]),
-				float(argv[4]),
-				argv[5]
+				float(argv[3]),
+				argv[4]
 			)
 		except IndexError:
 			##No argv handling
