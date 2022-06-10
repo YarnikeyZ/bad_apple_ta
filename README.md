@@ -18,3 +18,4 @@
 * - [ ] Find the way to chop video to frames "on the flight"
 * - [ ] Cool path handling system
 * - [ ] The new correct way to track the time between frames
+* - [ ] The new display method *based* on moving pointer
