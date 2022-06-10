@@ -1,5 +1,5 @@
 from PIL import Image
-from time import sleep
+from time import sleep as sl
 from datetime import datetime
 from subprocess import getoutput as gout
 from sys import argv
@@ -7,6 +7,19 @@ from os import listdir as ld
 
 
 clear = gout("clear")
+
+
+def mv_p(way: str, length: int):
+	mv = "\u001b["
+	way = way.upper()
+	if way == "U" or way == "A":
+		print(f"{mv}{length}A", end="")
+	elif way == "D" or way == "B":
+		print(f"{mv}{length}B", end="")
+	elif way == "R" or way == "C":
+		print(f"{mv}{length}C", end="")
+	elif way == "L" or way == "D":
+		print(f"{mv}{length}D", end="")
 
 
 def progress(all: int, part: int, inper: int, symbs: tuple):
@@ -43,19 +56,24 @@ def render(path: str, y: int):
 					cbright = 0
 				line += f'\033[38;5;{cscale[cbright]}m{sscale[sbright-1]}\033[0;0m'
 			pic += f'{line}\n'
-		print(progress(count, num, inper, ("█", " "))[1], end="")
-		inper = progress(count, num, inper, ("█", " "))[0]
+		prog = progress(count, num, inper, ("█", " "))
+		print(prog[1], end="")
+		inper = prog[0]
 		frames.append(f'{pic}\n\n"Screen": Resolution/Total: {x}x{y}/{xy} symbols\n\nFrames: Total/Remaining/Now frame(s): {count}/{count-num}/{num}')
 	return frames
 
 
-def display(frames: list, frame_time: float):
+def display(frames: list, frame_time: float, y: int):
 	input("Display?...")
+	print(clear)
 	time_st = datetime.now()
 	for frame in frames:
+		mv_p('U', y+3)
 		time_frame = datetime.now()
-		print(f"{sleep(frame_time)}{clear}\n\n\n\n{frame}\n\nTime Total/Manual FT/Used FT: {datetime.now() - time_st}/{frame_time}/", end="")
-		print(datetime.now() - time_frame)
+		sl(frame_time)
+		for line in frame.split("\n"):
+			print(line)
+		print(f'\nTime Total/Manual FT/Used FT: {datetime.now() - time_st}/{frame_time}/{datetime.now() - time_frame}')
 
 
 def write_frames(frames: list):
@@ -64,8 +82,9 @@ def write_frames(frames: list):
 	for img_frame, num in zip(frames, range(1, count)):
 		with open(f"txt_frames/frame{num}.txt", 'w', encoding="utf-8") as txt_frame:
 			txt_frame.write(img_frame)
-		print(progress(count, num, inper, ("█", " "))[1], end="")
-		inper = progress(count, num, inper, ("█", " "))[0]
+		prog = progress(count, num, inper, ("█", " "))
+		print(prog[1], end="")
+		inper = prog[0]
 	return
 
 
@@ -76,27 +95,35 @@ def read_frames():
 	for num in range(1, count):
 		with open(f"txt_frames/frame{num}.txt", "r", encoding="utf-8") as frame:
 			frames.append(frame.read())
-		print(progress(count, num, inper, ("█", " "))[1], end="")
-		inper = progress(count, num, inper, ("█", " "))[0]
+		prog = progress(count, num, inper, ("█", " "))
+		print(prog[1], end="")
+		inper = prog[0]
 	return frames
 
 
-def main(action: str, y: int, frame_time: float, path: str):
+def main():
 	try:
-		frames = []
-		path = f"img_frames_{path}"
-		count = len(ld(path))
+		action = input("Chose action (WR-REND or WR to write render, READ-REND or READ to read render, REND render): ").upper()
 		if action == "WR-REND" or action == "WR":
+			y = int(input("Y: "))
+			frame_time = 0
+			path = f"img_frames_{input('Path to frames: img_frames_')}"
 			frames = render(path, y)
 			write_frames(frames)
 			return
 		elif action == "READ-REND" or action == "READ":
+			frame_time = float(input("Frame time: "))
+			path = ""
 			frames = read_frames()
-			display(frames, frame_time)
+			y = len(frames[0].split("\n"))
+			display(frames, frame_time, y+4)
 			return
 		else:
+			y = int(input("Y: "))
+			frame_time = float(input("Frame time: "))
+			path = f"img_frames_{input('Path to frames: img_frames_')}"
 			frames = render(path, y)
-			display(frames, frame_time)
+			display(frames, frame_time , y+4)
 			return
 	except KeyboardInterrupt:
 		print("\n[ok]\n")
@@ -104,23 +131,4 @@ def main(action: str, y: int, frame_time: float, path: str):
 
 
 if __name__ == "__main__":
-	try:
-		try:
-			##Argv handling
-			main(
-				argv[1],
-				int(argv[2]),
-				float(argv[3]),
-				argv[4]
-			)
-		except IndexError:
-			##No argv handling
-			main(
-				input("Chose action (WR-REND or WR to write render, READ-REND or READ to read render, REND render): ").upper(),
-				int(input("Y: ")),
-				float(input("Frame time: ")),
-				input("Path to frames: img_frames_")
-			)
-	except KeyboardInterrupt:
-		print("\n\nExiting...")
-		exit()
+	main()
