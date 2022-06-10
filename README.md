@@ -8,14 +8,15 @@
 
 ## BIG-small TODO:
 ### Code:
-* - [ ] New good system of inputs
+* - [X] New ~~good~~ normal for existence system of inputs
 * - [ ] Faster rendering and quality of it
-* - [ ] Sh*t code cleaning
+* - [X] Sh*t code cleaning
+* - [ ] Sh*t code cleaning 2
 ### User experience:
 * - [ ] Tutorial about installing
 * - [ ] Tutorial about using
 ### Both:
 * - [ ] Find the way to chop video to frames "on the flight"
-* - [ ] Cool path handling system
+* - [X] ~~Cool~~ Normal for existence path handling system
 * - [ ] The new correct way to track the time between frames
-* - [ ] The new display method *based* on moving pointer
+* - [X] The new display method *based* on moving pointer
