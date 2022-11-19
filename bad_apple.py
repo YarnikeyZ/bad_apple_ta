@@ -1,11 +1,11 @@
 from PIL import Image
 from time import sleep as sl
-from datetime import datetime, timedelta
+from datetime import datetime
 from subprocess import getoutput as gout
 from sys import argv
 from os import listdir as ls
 
-clear = gout("clear")
+clear = "\033[0;0m\033[H\033[2J\033[3J"
 script_dir = __file__[:__file__.rfind('/')-len(__file__)+1]
 
 def progress(all: int, part: int, inper: int, symbs: tuple):
@@ -23,7 +23,7 @@ def render(path: str, y: int):
 	sscale = ['.', "'", ',', ':', '^', '"', ';', '*', '!', '²', '¤', '/', 'r', '(', '?', '+', '?', 'c', 'L', 'ª', '7', 't', '1', 'f', 'J', 'C', 'Ý', 'y', '¢', 'z', 'F', '3', '±', '%', '2', 'k', 'ñ', '5', 'A', 'Z', 'X', 'G', '$', 'À', '0', 'Ã', 'm', '&', 'Q', '8', '#', 'R', 'Ô', 'ß', 'Ê', 'N', 'B', 'å', 'M', 'Æ', 'Ø', '@', '¶']
 	cscale  = [0, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 15]
 	count = len(ls(path))
-	for num in range(1, count):
+	for num in range(1, count+1):
 		img = Image.open(f"{path}/frame{num}.jpg").convert('L')
 		img = img.resize((x, y), Image.Resampling.LANCZOS)
 		obj = img.load()
@@ -43,7 +43,7 @@ def render(path: str, y: int):
 		prog = progress(count, num, inper, ("█", " "))
 		print(prog[1], end="")
 		inper = prog[0]
-		frames.append(f'{pic}\n\n"Screen": Resolution/Total: {x}x{y}/{xy} symbols\nFrames: Total/Remaining/Now frame(s): {count}/{count-num}/{num}         ')
+		frames.append(f'{pic}\n\n"Screen": Resolution/Total: {x}x{y}/{xy} symbols\nFrames: Total/Remaining/Now frame(s): {count}/{count-num}/{num}                      ')
 	return frames
 
 def display(frames: list, fps: int):
@@ -52,10 +52,10 @@ def display(frames: list, fps: int):
 	remaining = 0
 	overflow = 0
 	display_start = datetime.now()
-	for frame in frames:
+	for frame in range(1, len(frames)+1):
 		print(f"\033[1007A", end="")
 		frame_time = datetime.now()
-		print(frame)
+		print(frames[0])
 		manual_frame_time = 1/fps - (datetime.now() - frame_time).microseconds/1000000-remaining
 		if manual_frame_time > 0:
 			sl(manual_frame_time)
@@ -64,39 +64,33 @@ def display(frames: list, fps: int):
 			overflow += 1
 			remaining = manual_frame_time*-1
 		print(f'Time Total/FPS/Preset FT/Manual FT/Used FT/Overflowed: {datetime.now() - display_start}/{fps}/{1/fps}/{manual_frame_time}/{datetime.now() - frame_time}/{overflow}          ')
+		frames.pop(0)
 
-def write_frames(frames: list):
+def write_frames(frames: list, name: str):
 	inper = 0
 	count = len(frames)
-	for img_frame, num in zip(frames, range(1, count)):
-		with open(f"{script_dir}txt_frames/frame{num}.txt", 'w', encoding="utf-8") as txt_frame:
-			txt_frame.write(img_frame)
-		prog = progress(count, num, inper, ("█", " "))
-		print(prog[1], end="")
-		inper = prog[0]
+	with open(f"{script_dir}txt_frames_{name}", 'w', encoding="utf-8") as txt_frame:
+		for img_frame, num in zip(frames, range(1, count)):
+			txt_frame.write(img_frame+"\n{~~~~~~~~~~~~~~~}\n")
+			prog = progress(count, num, inper, ("█", " "))
+			print(prog[1], end="")
+			inper = prog[0]
 	return
 
-def read_frames():
+def read_frames(name):
 	frames = []
-	inper = 0
-	count = len(ls(f"{script_dir}txt_frames"))
-	for num in range(1, count):
-		with open(f"{script_dir}txt_frames/frame{num}.txt", "r", encoding="utf-8") as frame:
-			frames.append(frame.read())
-		prog = progress(count, num, inper, ("█", " "))
-		print(prog[1], end="")
-		inper = prog[0]
+	with open(f"{script_dir}txt_frames_{name}", "r", encoding="utf-8") as txt_frames:
+		frames = txt_frames.read().split("\n{~~~~~~~~~~~~~~~}\n")
 	return frames
 
 def main():
 	try:
 		try:
 			if argv[1].upper() in ["WR-REND", "WR"]:
-				write_frames(render(f"{script_dir}img_frames_{argv[2]}", int(argv[3])))
+				write_frames(render(f"{script_dir}img_frames_{argv[2]}", int(argv[3])), argv[2])
 
 			elif argv[1].upper() in ["READ-REND", "READ"]:
-				frames = read_frames()
-				display(frames, int(argv[2]))
+				display(read_frames(argv[2]), int(argv[3]))
 			
 			elif argv[1].upper() == "REND":
 				display(render(f"{script_dir}img_frames_{argv[2]}", int(argv[4])), int(argv[3]))
@@ -107,10 +101,11 @@ def main():
 		except IndexError:
 			action = input("Chose action (WR-REND or WR to write render, READ-REND or READ to read render, REND render): ").upper()
 			if action in ["WR-REND", "WR"]:
-				write_frames(render(f"{script_dir}img_frames_{input('Path to frames: img_frames_')}", int(input("Y: "))))
+				name = input('Path to frames: img_frames_')
+				write_frames(render(f"{script_dir}img_frames_{name}", int(input("Y: "))), name)
 			
 			elif action in ["READ-REND", "READ"]:
-				frames = read_frames()
+				frames = read_frames(input("Path to frames: txt_frames_"))
 				display(frames, int(input("FPS: ")))
 			
 			elif action == "REND":
